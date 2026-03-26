@@ -1,21 +1,27 @@
 plugins {
+    // com.android.application must be applied first; it sets up the Android build model.
     alias(libs.plugins.android.application)
+    // org.jetbrains.kotlin.android (also available as the 'kotlin-android' short alias) –
+    // registers the 'kotlin' DSL extension on the project.
+    // Apply this plugin only ONCE. Applying the same plugin a second time – whether through
+    // a different alias, by including 'org.jetbrains.kotlin.android' or 'kotlin-android' again,
+    // or via a transitive application – causes the build error:
+    //   "Cannot add extension with name 'kotlin', as there is an extension already registered with that name."
     alias(libs.plugins.kotlin.android)
+    // org.jetbrains.kotlin.plugin.compose – required since Kotlin 2.x to enable the
+    // Compose compiler plugin. This is separate from kotlin.android and must use the
+    // same Kotlin version (see libs.versions.toml: kotlin).
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.oceanentp.realcalling"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.oceanentp.realcalling"
         minSdk = 33
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
