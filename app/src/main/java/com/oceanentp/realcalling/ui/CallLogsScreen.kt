@@ -24,11 +24,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.oceanentp.realcalling.data.model.CallLogEntry
+import com.oceanentp.realcalling.viewmodel.CallLogsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,33 +43,14 @@ private const val CALL_TYPE_INCOMING = 1
 private const val CALL_TYPE_OUTGOING = 2
 private const val CALL_TYPE_MISSED = 3
 
-private data class MockCallLog(
-    val name: String?,
-    val number: String,
-    val type: Int,
-    val dateMs: Long,
-    val durationSec: Long
-)
-
-private val mockCallLogs: List<MockCallLog> = run {
-    val now = System.currentTimeMillis()
-    listOf(
-        MockCallLog("Alice Johnson", "+1-555-0101", CALL_TYPE_INCOMING, now - 1_800_000L, 145),
-        MockCallLog("Bob Smith", "+1-555-0202", CALL_TYPE_OUTGOING, now - 7_200_000L, 320),
-        MockCallLog(null, "+1-555-0303", CALL_TYPE_MISSED, now - 10_800_000L, 0),
-        MockCallLog("Carol White", "+1-555-0404", CALL_TYPE_INCOMING, now - 86_400_000L, 62),
-        MockCallLog("Dave Brown", "+1-555-0505", CALL_TYPE_OUTGOING, now - 172_800_000L, 531),
-        MockCallLog(null, "+1-555-0606", CALL_TYPE_MISSED, now - 259_200_000L, 0),
-        MockCallLog("Eve Davis", "+1-555-0707", CALL_TYPE_INCOMING, now - 345_600_000L, 87),
-        MockCallLog("Frank Miller", "+1-555-0808", CALL_TYPE_OUTGOING, now - 432_000_000L, 210),
-    )
-}
-
 @Composable
 fun CallLogsScreen(
     modifier: Modifier = Modifier,
+    viewModel: CallLogsViewModel = viewModel(),
     onCallNumber: (String) -> Unit
 ) {
+    val callLogs by viewModel.callLogs.collectAsState()
+
     Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = "Recents",
@@ -72,17 +58,30 @@ fun CallLogsScreen(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         )
         HorizontalDivider()
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(mockCallLogs) { log ->
-                CallLogItem(log = log, onCallNumber = onCallNumber)
-                HorizontalDivider(modifier = Modifier.padding(start = 72.dp))
+        if (callLogs.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No recent calls",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(callLogs, key = { "${it.number}_${it.date}_${it.type}_${it.duration}" }) { log ->
+                    CallLogItem(log = log, onCallNumber = onCallNumber)
+                    HorizontalDivider(modifier = Modifier.padding(start = 72.dp))
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CallLogItem(log: MockCallLog, onCallNumber: (String) -> Unit) {
+private fun CallLogItem(log: CallLogEntry, onCallNumber: (String) -> Unit) {
     val colorIncoming = Color(0xFF4CAF50)
     val colorMissed = Color(0xFFF44336)
 
@@ -129,13 +128,13 @@ private fun CallLogItem(log: MockCallLog, onCallNumber: (String) -> Unit) {
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "$typeLabel · ${formatCallDate(log.dateMs)}",
+                    text = "$typeLabel · ${formatCallDate(log.date)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (log.durationSec > 0) {
+                if (log.duration > 0) {
                     Text(
-                        text = " · ${formatCallDuration(log.durationSec)}",
+                        text = " · ${formatCallDuration(log.duration)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -174,3 +173,4 @@ private fun formatCallDuration(seconds: Long): String {
     val secs = seconds % 60
     return if (minutes > 0) "${minutes}m ${secs}s" else "${secs}s"
 }
+

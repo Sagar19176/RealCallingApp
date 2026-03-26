@@ -24,51 +24,29 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
-private data class MockContact(val name: String, val phoneNumber: String)
-
-private val mockContacts = listOf(
-    MockContact("Alice Johnson", "+1-555-0101"),
-    MockContact("Bob Smith", "+1-555-0202"),
-    MockContact("Carol White", "+1-555-0404"),
-    MockContact("Dave Brown", "+1-555-0505"),
-    MockContact("Eve Davis", "+1-555-0707"),
-    MockContact("Frank Miller", "+1-555-0808"),
-    MockContact("Grace Wilson", "+1-555-0909"),
-    MockContact("Henry Taylor", "+1-555-1010"),
-    MockContact("Iris Anderson", "+1-555-1111"),
-    MockContact("Jack Thomas", "+1-555-1212"),
-).sortedBy { it.name }
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.oceanentp.realcalling.data.model.Contact
+import com.oceanentp.realcalling.viewmodel.ContactsViewModel
 
 @Composable
 fun ContactsScreen(
     modifier: Modifier = Modifier,
+    viewModel: ContactsViewModel = viewModel(),
     onCallNumber: (String) -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    val filteredContacts = remember(searchQuery) {
-        if (searchQuery.isBlank()) {
-            mockContacts
-        } else {
-            mockContacts.filter { contact ->
-                contact.name.contains(searchQuery, ignoreCase = true) ||
-                        contact.phoneNumber.contains(searchQuery)
-            }
-        }
-    }
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val filteredContacts by viewModel.filteredContacts.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
+            onValueChange = { viewModel.onSearchQueryChange(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -88,14 +66,14 @@ fun ContactsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No contacts found",
+                    text = if (searchQuery.isBlank()) "No contacts on device" else "No contacts found",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(filteredContacts, key = { it.phoneNumber }) { contact ->
+                items(filteredContacts, key = { "${it.id}_${it.phoneNumber}" }) { contact ->
                     ContactItem(contact = contact, onCallNumber = onCallNumber)
                     HorizontalDivider(modifier = Modifier.padding(start = 72.dp))
                 }
@@ -105,7 +83,8 @@ fun ContactsScreen(
 }
 
 @Composable
-private fun ContactItem(contact: MockContact, onCallNumber: (String) -> Unit) {
+private fun ContactItem(contact: Contact, onCallNumber: (String) -> Unit) {
+    val initial = contact.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -120,7 +99,7 @@ private fun ContactItem(contact: MockContact, onCallNumber: (String) -> Unit) {
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = contact.name.first().uppercaseChar().toString(),
+                    text = initial,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -152,3 +131,4 @@ private fun ContactItem(contact: MockContact, onCallNumber: (String) -> Unit) {
         }
     }
 }
+
