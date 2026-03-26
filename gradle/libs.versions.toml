@@ -1,4 +1,7 @@
 [versions]
+# Android Gradle Plugin – must be compatible with the Gradle version declared in
+# gradle/wrapper/gradle-wrapper.properties (currently Gradle 9.3.1). Verify
+# compatibility at https://developer.android.com/build/releases/gradle-plugin.
 agp = "9.1.0"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -6,8 +9,12 @@ junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
-kotlin = "2.2.10"
-composeBom = "2024.09.00"
+# Kotlin – must match the version used by org.jetbrains.kotlin.android and
+# org.jetbrains.kotlin.plugin.compose. Both plugins must share the same
+# version to avoid "Cannot add extension with name 'kotlin'" conflicts.
+kotlin = "2.1.0"
+# Compose BOM – choose a BOM that is tested against the Kotlin version above.
+composeBom = "2024.10.01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
