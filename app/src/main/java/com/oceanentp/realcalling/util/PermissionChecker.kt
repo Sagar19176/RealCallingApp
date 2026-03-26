@@ -11,7 +11,7 @@ object PermissionChecker {
         return (hasCallPhonePermission(context)
                 && hasReadCallLogPermission(context)
                 && hasReadContactsPermission(context)
-                )
+                && hasReadPhoneStatePermission(context))
     }
 
     fun hasCallPhonePermission(context: Context): Boolean {
@@ -32,6 +32,13 @@ object PermissionChecker {
         return ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun hasReadPhoneStatePermission(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_PHONE_STATE
         ) == PackageManager.PERMISSION_GRANTED
     }
 }
