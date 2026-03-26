@@ -1,6 +1,8 @@
 package com.oceanentp.realcalling
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.oceanentp.realcalling.ui.MainScreen
 import com.oceanentp.realcalling.ui.theme.RealCallingTheme
 import com.oceanentp.realcalling.util.PermissionChecker
 
@@ -59,19 +62,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RealCallingTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (allPermissionsGranted) {
-                        // TODO: Replace with MainScreen composable once built
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(text = "All permissions granted. App is ready.")
-                        }
-                    } else {
+                if (allPermissionsGranted) {
+                    MainScreen(onCallNumber = ::placeCall)
+                } else {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -132,6 +126,14 @@ class MainActivity : ComponentActivity() {
     private fun launchPermissionRequest() {
         showPermissionRationale = false
         permissionLauncher.launch(requiredPermissions)
+    }
+
+    private fun placeCall(number: String) {
+        val digits = number.filter { it.isDigit() || it == '+' || it == '*' || it == '#' }
+        if (digits.isNotEmpty()) {
+            val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$digits"))
+            startActivity(intent)
+        }
     }
 }
 
