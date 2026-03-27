@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -23,13 +21,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ShapeDefaults
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +45,7 @@ fun DialerScreen(
     modifier: Modifier = Modifier,
     onCallNumber: (String) -> Unit
 ) {
-    var phoneNumber by remember { mutableStateOf("") }
+    var phoneNumber by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -63,7 +59,11 @@ fun DialerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 32.dp)
-                .border(width = .8.dp,shape = CircleShape, color = MaterialTheme.colorScheme.onSurface),
+                .border(
+                    width = .8.dp,
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -102,7 +102,10 @@ fun DialerScreen(
         ) {
             dialerRows.forEach { row ->
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        12.dp,
+                        Alignment.CenterHorizontally
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     row.forEach { key ->
@@ -114,12 +117,16 @@ fun DialerScreen(
 
         // Call button
         Box(
-            modifier = Modifier.padding(vertical = 24.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(vertical = 24.dp)
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             FilledIconButton(
                 onClick = { if (phoneNumber.isNotEmpty()) onCallNumber(phoneNumber) },
-                modifier = Modifier.size(height = 62.dp,width = 132.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .size(height = 62.dp, width = 132.dp)
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -140,7 +147,8 @@ fun DialerScreen(
 private fun DialerKey(label: String, onClick: () -> Unit) {
     OutlinedButton(
         onClick = onClick,
-        modifier = Modifier.size(height = 62.dp, width = 112.dp)
+        modifier = Modifier
+            .size(height = 62.dp, width = 112.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         contentPadding = PaddingValues(0.dp)
