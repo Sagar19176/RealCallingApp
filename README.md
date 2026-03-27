@@ -38,15 +38,15 @@ A modern, fully-featured Android phone dialer application built with **Kotlin** 
   <tr>
     <td align="center">
       <strong>Dialer Screen</strong><br/>
-      <img src="screenshots/dialer_screen.png" alt="Dialer Screen" width="250"/>
+      <img src="screenshots/ss1.jpeg" alt="Dialer Screen" width="250"/>
     </td>
     <td align="center">
       <strong>Call Logs Screen</strong><br/>
-      <img src="screenshots/call_logs_screen.png" alt="Call Logs Screen" width="250"/>
+      <img src="screenshots/ss2.jpeg" alt="Call Logs Screen" width="250"/>
     </td>
     <td align="center">
       <strong>Contacts Screen</strong><br/>
-      <img src="screenshots/contacts_screen.png" alt="Contacts Screen" width="250"/>
+      <img src="screenshots/ss3.jpeg" alt="Contacts Screen" width="250"/>
     </td>
   </tr>
 </table>
